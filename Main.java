@@ -6,6 +6,17 @@ public class Main {
         menu();
     }
 
+    public static boolean isValidSize(String num) {
+        try {
+            int n = Integer.parseInt(num);
+            if (n > 0) {return true;}
+            else {return false;}
+        }
+        catch (Throwable s) {
+            return false;
+        }
+    }
+
     public static void menu() {
         Scanner sc = new Scanner(System.in);
         System.out.println("please input your command>");
@@ -30,10 +41,17 @@ public class Main {
 //        System.out.println(args);
 
         if (command.equals("install-drive")) {
+            boolean proceed = true;
+            if (args.size() != 2 || !isValidSize(args.get(1))) {
+                proceed = false;
+                System.out.println("Invalid Arguments");
+            }
             // for this one, the check for a duplicate name is built into the server method
-            boolean result = myServer.installDrive(args.get(0), Integer.parseInt(args.get(1)));
-            if (result) {System.out.println("Success!");}
-            else {System.out.println(myServer.getError());}
+            if (proceed) {
+                boolean result = myServer.installDrive(args.get(0), Integer.parseInt(args.get(1)));
+                if (result) {System.out.println("Success!");}
+                else {System.out.println(myServer.getError());}
+            }
         }
 
         if (command.equals("list-drives")) {
@@ -46,14 +64,21 @@ public class Main {
 
         if (command.equals("pvcreate")) {
             boolean proceed = true;
-            ArrayList<PhysicalVolume> PVs = myServer.getPhysicalVolumes();
-            for (int i = 0; i < PVs.size(); i++) {
-                if (PVs.get(i).getName().equals(args.get(0))) {
-                    System.out.println("That name is already in use!");
-                    proceed = false;
-                }
+            if (args.size() != 2) {
+                proceed = false;
+                System.out.println("Invalid Arguments");
             }
 
+            ArrayList<PhysicalVolume> PVs = myServer.getPhysicalVolumes();
+
+            if (proceed) {
+                for (int i = 0; i < PVs.size(); i++) {
+                    if (PVs.get(i).getName().equals(args.get(0))) {
+                        System.out.println("That name is already in use!");
+                        proceed = false;
+                    }
+                }
+            }
 
             if (proceed) {
                 boolean result = myServer.createPV(args.get(1), args.get(0));
@@ -76,11 +101,17 @@ public class Main {
 
         if (command.equals("vgcreate")) {
             boolean proceed = true;
+            if (args.size() != 2) {
+                proceed = false;
+                System.out.println("Invalid Arguments");
+            }
             ArrayList<VolumeGroup> VGs = myServer.getVolumeGroups();
-            for (int i =0 ; i < VGs.size(); i++) {
-                if (args.get(0).equals(VGs.get(i).getName())) {
-                    System.out.println("Name already in use!");
-                    proceed = false;
+            if (proceed) {
+                for (int i =0 ; i < VGs.size(); i++) {
+                    if (args.get(0).equals(VGs.get(i).getName())) {
+                        System.out.println("Name already in use!");
+                        proceed = false;
+                    }
                 }
             }
             if (proceed) {
@@ -94,11 +125,18 @@ public class Main {
         }
 
         if (command.equals("vgextend")) {
-            boolean result = myServer.extendVG(args.get(1), args.get(0));
-            if (result) {
-                System.out.println("Success!");
-            } else {
-                System.out.println(myServer.getError());
+            boolean proceed = true;
+            if (args.size() != 2) {
+                proceed = false;
+                System.out.println("Invalid Arguments");
+            }
+            if (proceed) {
+                boolean result = myServer.extendVG(args.get(1), args.get(0));
+                if (result) {
+                    System.out.println("Success!");
+                } else {
+                    System.out.println(myServer.getError());
+                }
             }
         }
 
@@ -109,7 +147,7 @@ public class Main {
                 System.out.print(vg.getName() + ": total:[" + vg.getSize() + "] available:[" + vg.getRemainingSpace() +  "] [");
                 ArrayList<PhysicalVolume> PVs = vg.getPVs();
                 for (int n = 0; n < PVs.size()-1; n++) {
-                    System.out.print(PVs.get(i).getName());
+                    System.out.print(PVs.get(n).getName());
                     System.out.print(",");
                 }
                 System.out.println(PVs.get(PVs.size()-1).getName() + "] [" + vg.getUUID().toString() + "]");
@@ -119,11 +157,18 @@ public class Main {
 
         if (command.equals("lvcreate")) {
             boolean proceed = true;
+            if (args.size() != 3 || !isValidSize(args.get(1))){
+                proceed = false;
+                System.out.println("Invalid Arguments");
+            }
             ArrayList<LogicalVolume> LVs = myServer.getLogicalVolumes();
-            for (int i = 0; i < LVs.size(); i++) {
-                if (LVs.get(i).getName().equals(args.get(0))) {
-                    System.out.println("That name is already in use!");
-                    proceed = false;
+
+            if (proceed) {
+                for (int i = 0; i < LVs.size(); i++) {
+                    if (LVs.get(i).getName().equals(args.get(0))) {
+                        System.out.println("That name is already in use!");
+                        proceed = false;
+                    }
                 }
             }
             if (proceed) {

@@ -141,7 +141,7 @@ public class Server {
             }
         }
 
-        if (targetDrive.equals(null)) {
+        if (targetDrive == null) {
             error = "That Drive could not be found!";
             return false;
         }
